@@ -1,6 +1,7 @@
 import numpy as np
 import RPi.GPIO as GPIO
 import time
+import pyaudio
 #import matplotlib.pyplot as plt
 np.set_printoptions(precision=4,linewidth=160)
 
@@ -104,25 +105,43 @@ hbp = HeartBeat_pattern(t,tidx);
 #plot_sig1(tr(t),ar(hbp),'Heart beat (SCG) pattern')
 
 
+# Initialize PyAudio
+p = pyaudio.PyAudio()
 
-#Additions to the sent code to output Signal to GPIO pins instead of plot -Bryce Wellman
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)
-'''
-def output_signal_to_gpio(t, signal):
+# Generate the heartbeat waveform and play it
+def play_heartbeat():
+    # Audio stream parameters
+    rate = 44100  # Sampling rate in Hz
+    duration = 5  # Duration to play the heartbeat signal in seconds
 
-    pwm = GPIO.PWM(17, 10000)
-    pwm.start(0)
+    # Generate the time array for the desired duration with the given sampling rate
+    t_audio = np.linspace(0, duration, int(rate * duration), endpoint=False)
 
-    try:
-        for i in range(len(t)):
-            duty_cycle = max(0, min(100, signal[i] * 100))  # Convert signal value to duty cycle
-            pwm.ChangeDutyCycle(duty_cycle)  # Change duty cycle
-            time.sleep(0.01)  # Adjust sleep time to match signal's time resolution
-    finally:
-        pwm.stop()
-        GPIO.cleanup()
-'''
+    # Generate heartbeat pattern
+    # Make sure tidx is defined somewhere in your script as needed by HeartBeat_pattern
+    heartbeat_waveform = HeartBeat_pattern(t_audio / rate * 30, tidx)  # Adjust time scaling as needed
+
+    # Normalize waveform
+    heartbeat_waveform_normalized = 2 * (heartbeat_waveform - heartbeat_waveform.min()) / (heartbeat_waveform.max() - heartbeat_waveform.min()) - 1
+
+    # Open an audio stream
+    stream = p.open(format=pyaudio.paFloat32,
+                    channels=1,
+                    rate=rate,
+                    output=True)
+
+    # Play the heartbeat waveform
+    stream.write(heartbeat_waveform_normalized.astype(np.float32).tobytes())
+
+    # Close the stream
+    stream.stop_stream()
+    stream.close()
+
+# Play the heartbeat
+play_heartbeat()
+
+# Terminate PyAudio
+p.terminate()
 
 # Normalize the heartbeat pattern signal to a 0-1 range for PWM duty cycle
 hbp_normalized = (hbp - hbp.min()) / (hbp.max() - hbp.min())
@@ -148,33 +167,4 @@ output_signal_to_gpio(t, hbp_normalized)
 Building wheel for pyaudio (pyproject.toml) ... error
   error: subprocess-exited-with-error
   
-  × Building wheel for pyaudio (pyproject.toml) did not run successfully.
-  │ exit code: 1
-  ╰─> [18 lines of output]
-      running bdist_wheel
-      running build
-      running build_py
-      creating build
-      creating build/lib.linux-aarch64-cpython-311
-      creating build/lib.linux-aarch64-cpython-311/pyaudio
-      copying src/pyaudio/__init__.py -> build/lib.linux-aarch64-cpython-311/pyaudio
-      running build_ext
-      building 'pyaudio._portaudio' extension
-      creating build/temp.linux-aarch64-cpython-311
-      creating build/temp.linux-aarch64-cpython-311/src
-      creating build/temp.linux-aarch64-cpython-311/src/pyaudio
-      aarch64-linux-gnu-gcc -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -fPIC -I/usr/local/include -I/usr/include -I/home/Mo/Desktop/Power_project/myenv/include -I/usr/include/python3.11 -c src/pyaudio/device_api.c -o build/temp.linux-aarch64-cpython-311/src/pyaudio/device_api.o
-      src/pyaudio/device_api.c:9:10: fatal error: portaudio.h: No such file or directory
-          9 | #include "portaudio.h"
-            |          ^~~~~~~~~~~~~
-      compilation terminated.
-      error: command '/usr/bin/aarch64-linux-gnu-gcc' failed with exit code 1
-      [end of output]
   
-  note: This error originates from a subprocess, and is likely not a problem with pip.
-  ERROR: Failed building wheel for pyaudio
-Failed to build pyaudio
-ERROR: Could not build wheels for pyaudio, which is required to install pyproject.toml-based projects
-
-
-
