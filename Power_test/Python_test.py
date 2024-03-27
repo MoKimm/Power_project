@@ -3,20 +3,12 @@ import time
 import numpy as np
 
 GPIO.setmode(GPIO.BCM)
-
+GPIO.setwarnings(False)
 LED_pin = 17
 GPIO.setup(LED_pin, GPIO.OUT)
+print("on")
+GPIO.output(LED_pin, GPIO.HIGH)
+time.sleep(1)
+print("off")
+GPIO.output(LED_pin, GPIO.LOW)
 
-pwm = GPIO.PWM(LED_pin, 1000)
-pwm.start(0)
-
-try:
-    hbp = np.array([0,0.5,1,0.5,0])
-    for value in hbp:
-        duty = value*100
-        pwm.ChangeDutyCycle(duty)
-        time.sleep(0.01)
-
-finally:
-    pwm.stop()
-    GPIO.cleanup()
