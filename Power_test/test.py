@@ -1,5 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import RPi.GPIO as GPIO
+import time
+
+LED_pin = 17  # replace with your GPIO pin number
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(LED_pin, GPIO.OUT)
+
 np.set_printoptions(precision=4,linewidth=160)
 
 def uSignal(t):    return np.array(0.5*np.sign(t) + 0.5,dtype=int)
@@ -97,3 +104,24 @@ hbp = HeartBeat_pattern(t,tidx);
 
 #plot it
 plot_sig1(tr(t),ar(hbp),'Heart beat (SCG) pattern')
+
+def output_to_GPIO(t, signal, pin):
+    dt = t[1] - t[0]  # time difference between samples
+    
+    for value in signal:
+        GPIO.output(pin, GPIO.HIGH if value > 0.5 else GPIO.LOW)
+        time.sleep(dt)
+try:
+    # Build SCG pattern
+    tidx, t1 = set_δ(t, 3*2*np.pi)
+    hbp = HeartBeat_pattern(t, tidx)
+    scaled_hbp = scale01(hbp)  # Make sure the signal is scaled between 0 and 1
+
+    # Output to GPIO
+    output_to_GPIO(t, scaled_hbp, LED_pin)
+
+except KeyboardInterrupt:
+    pass
+
+finally:
+    GPIO.cleanup()
