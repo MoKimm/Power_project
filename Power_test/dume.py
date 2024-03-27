@@ -147,7 +147,7 @@ p.terminate()
 hbp_normalized = (hbp - hbp.min()) / (hbp.max() - hbp.min())
 
 # Output the normalized signal to GPIO
-output_signal_to_gpio(t, hbp_normalized)
+# output_signal_to_gpio(t, hbp_normalized)
 
 """
 #Following code includes the randomizations to the ekg 
@@ -163,8 +163,3 @@ hbp_normalized = (hbp_transformed - hbp_transformed.min()) / (hbp_transformed.ma
 output_signal_to_gpio(t, hbp_normalized)
 
 """
-
-Building wheel for pyaudio (pyproject.toml) ... error
-  error: subprocess-exited-with-error
-  
-  
