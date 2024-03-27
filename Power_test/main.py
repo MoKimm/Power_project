@@ -97,7 +97,7 @@ nt, it, thor  = 301, np.linspace(0,1,nt), 30
 t = thor*2*np.pi*(it-0)
 
 #build SCG pattern
-tidx,t1 = set_δ(t,10*2*np.pi);
+tidx,t1 = set_δ(t,6*2*np.pi);
 hbp = HeartBeat_pattern(t,tidx);
 
 #plot it
@@ -111,7 +111,7 @@ GPIO.setup(17, GPIO.OUT)
 
 def output_signal_to_gpio(t, signal):
 
-    pwm = GPIO.PWM(17, 50000)
+    pwm = GPIO.PWM(17, 10000)
     pwm.start(0)
 
     try:
