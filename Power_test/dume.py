@@ -1,6 +1,6 @@
 import numpy as np
 # import RPi.GPIO as GPIO
-from scipy.io.wavfile import write
+from scipy.io.wav import write
 
 import time
 #import matplotlib.pyplot as plt
