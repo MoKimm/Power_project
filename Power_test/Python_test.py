@@ -1,4 +1,4 @@
-import RPi.GPIO as GPIO
+'''import RPi.GPIO as GPIO
 import time
 import numpy as np
 
@@ -12,4 +12,9 @@ time.sleep(5)
 print("off")
 GPIO.output(LED_pin, GPIO.LOW)
 time.sleep(5)
+'''
+import simpleaudio as sa
 
+wave_obj = sa.WaveObject.from_wave_file("")
+play_obj = wave_obj.play()
+play_obj.wait_done()
