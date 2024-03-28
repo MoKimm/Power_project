@@ -15,6 +15,11 @@ time.sleep(5)
 '''
 import simpleaudio as sa
 
-wave_obj = sa.WaveObject.from_wave_file("")
-play_obj = wave_obj.play()
-play_obj.wait_done()
+def play_wav_file(wav_path):
+    wave_obj = sa.WaveObject.from_wave_file(wav_path)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()  # Wait until the file has finished playing
+
+# Play the heartbeat WAV file
+wav_file_path = 'heartbeat_signal.wav'  # Specify the same path used for saving
+play_wav_file(wav_file_path)
