@@ -4,6 +4,11 @@ from scipy.io.wavfile import write
 
 import time
 #import matplotlib.pyplot as plt
+
+# Sample rate and duration
+rate = 44100  # Hz
+duration = 5  # seconds
+
 np.set_printoptions(precision=4,linewidth=160)
 
 def uSignal(t):    return np.array(0.5*np.sign(t) + 0.5,dtype=int)
@@ -106,25 +111,13 @@ hbp = HeartBeat_pattern(t,tidx);
 #plot_sig1(tr(t),ar(hbp),'Heart beat (SCG) pattern')
 
 
-'''
-#Additions to the sent code to output Signal to GPIO pins instead of plot -Bryce Wellman
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)
 
-def output_signal_to_gpio(t, signal):
+t = np.linspace(0, duration, int(rate * duration), False)
+data = np.sin(2 * np.pi * 220 * t)  # Example: Generate a 220Hz sine wave
+normalized_data = np.int16((data / data.max()) * 32767)
 
-    pwm = GPIO.PWM(17, 10000)
-    pwm.start(0)
-
-    try:
-        for i in range(len(t)):
-            duty_cycle = max(0, min(100, signal[i] * 100))  # Convert signal value to duty cycle
-            pwm.ChangeDutyCycle(duty_cycle)  # Change duty cycle
-            time.sleep(0.01)  # Adjust sleep time to match signal's time resolution
-    finally:
-        pwm.stop()
-        GPIO.cleanup()
-'''
+# Save as a WAV file
+write('heartbeat_signal.wav', rate, normalized_data)
 
 # Normalize the heartbeat pattern signal to a 0-1 range for PWM duty cycle
 hbp_normalized = (hbp - hbp.min()) / (hbp.max() - hbp.min())
