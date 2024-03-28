@@ -23,7 +23,3 @@ def play_wav_file(wav_path):
 # Play the heartbeat WAV file
 wav_file_path = 'heartbeat_signal.wav'  # Specify the same path used for saving
 play_wav_file(wav_file_path)
-(myenv) Mo@raspberrypi:~/Desktop/Power_project $ pip install scipy
-Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
-Requirement already satisfied: scipy in ./myenv/lib/python3.11/site-packages (1.12.0)
-Requirement already satisfied: numpy<1.29.0,>=1.22.4 in ./myenv/lib/python3.11/site-packages (from scipy) (1.26.4)
