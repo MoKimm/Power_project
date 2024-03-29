@@ -111,14 +111,14 @@ GPIO.setup(17, GPIO.OUT)
 
 def output_signal_to_gpio(t, signal):
 
-    pwm = GPIO.PWM(17, 10000)
+    pwm = GPIO.PWM(17, 500)
     pwm.start(0)
 
     try:
         for i in range(len(t)):
             duty_cycle = max(0, min(100, signal[i] * 100))  # Convert signal value to duty cycle
             pwm.ChangeDutyCycle(duty_cycle)  # Change duty cycle
-            time.sleep(0.01)  # Adjust sleep time to match signal's time resolution
+            time.sleep(0.1)  # Adjust sleep time to match signal's time resolution
     finally:
         pwm.stop()
         GPIO.cleanup()
