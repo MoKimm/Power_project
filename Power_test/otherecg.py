@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import RPi.GPIO as GPIO
 import smbus
 import time
 
