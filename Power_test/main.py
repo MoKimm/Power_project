@@ -111,7 +111,7 @@ GPIO.setup(17, GPIO.OUT)
 
 def output_signal_to_gpio(t, signal):
 
-    pwm = GPIO.PWM(17, 500)
+    pwm = GPIO.PWM(17, 5000)
     pwm.start(0)
 
     try:

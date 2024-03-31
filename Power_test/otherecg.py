@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
+'''import matplotlib.pyplot as plt'''
 import smbus
 import time
 
@@ -78,7 +78,7 @@ def plot_sig1(t,y1,title1):
     ax1.plot(t,y1,lw=2);
     ax1.vlines(0,0,1,'r',linestyles='dotted',lw=3)
     ax1.set_title(title1,fontweight='bold'); ax1.margins(0, 0.1)
-    plt.show()
+    
 
 def HeartBeatSignal(t):
     v1width = 0.2 * np.pi
@@ -106,7 +106,7 @@ def HeartBeat_pattern(t,tidx):
 
 #def ar(u): np.random.seed(1234); return u*(1+0.080*np.random.randn(nt))
 #def tr(u): np.random.seed(1234); return u*(1+0.001*np.random.randn(nt))
-np.random.seed(1234)
+
 #define t
 #nt, it, thor  = 301, np.linspace(0,1,nt), 30           
 #t = thor*2*np.pi*(it-0)
@@ -114,7 +114,7 @@ np.random.seed(1234)
 nt, it, thor = 301, np.linspace(0, 1, nt), 30
 t = thor * 2 * np.pi * it
 
-tidx, t1 = set_δ(t, 3 * 2 * np.pi)
+tidx, t1 = set_δ(t,  6* 2 * np.pi)
 hbp = HeartBeat_pattern(t, tidx)
 
 # Scale the heartbeat pattern to the 0-3.3V range
@@ -122,7 +122,7 @@ scaled_hbp = (hbp - np.min(hbp)) * (3.3 / (np.max(hbp) - np.min(hbp)))
 
 # Output the signal to the DAC at the desired sample rate
 try:
-    sample_rate = 0.01  # Adjust this value as needed for your signal
+    sample_rate = 0.1  # Adjust this value as needed for your signal
     for voltage in scaled_hbp:
         set_voltage(MCP4725_ADDRESS, voltage)
         time.sleep(sample_rate)
