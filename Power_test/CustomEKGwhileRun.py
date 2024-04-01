@@ -69,7 +69,9 @@ def main():
 
     try:
         while True:
-            nt, it, thor = 301, np.linspace(0, 1, nt), 30
+            nt = 301
+            it = np.linspace(0, 1, nt)
+            thor = 30
             t = thor * 2 * np.pi * it
 
             # Generate heartbeat signal using current settings

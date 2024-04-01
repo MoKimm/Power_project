@@ -54,6 +54,7 @@ seconds_per_beat = 60.0 / bpm
 
 try:
     while True:
+        nt = 301
         nt, it, thor = 301, np.linspace(0, 1, nt), 30
         t = thor * 2 * np.pi * it
 

@@ -122,7 +122,7 @@ scaled_hbp = (hbp - np.min(hbp)) * (3.3 / (np.max(hbp) - np.min(hbp)))
 
 # Output the signal to the DAC at the desired sample rate
 try:
-    sample_rate = 1  # Adjust this value as needed for your signal
+    sample_rate = 0.7  # Adjust this value as needed for your signal
     for voltage in scaled_hbp:
         set_voltage(MCP4725_ADDRESS, voltage)
         time.sleep(sample_rate)
