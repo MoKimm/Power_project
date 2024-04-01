@@ -71,20 +71,6 @@ def convolution(t,s1,s2):
         conv[i]= np.sum(s1[i-jt]*s2[jt])
     return scale01(conv)
 
-
-
-nt = 301
-it = np.linspace(0,1,nt)
-t = 20*(it-0.3)
-
-def plot_sig1(t,y1,title1):
-    fig, (ax1) = plt.subplots(1, 1, sharey=True,figsize=(20,2),facecolor=('#e0e0eb'))
-    nt,tmin, tmax = t.shape[0], np.min(t), np.max(t)
-    ax1.set_xlim([tmin, tmax]);
-    g_zero = -0.05; 
-    ax1.plot(t,y1,lw=2);
-    ax1.vlines(0,0,1,'r',linestyles='dotted',lw=3)
-    ax1.set_title(title1,fontweight='bold'); ax1.margins(0, 0.1)
     
 
 def HeartBeat_pattern(t, bpm):
@@ -98,6 +84,34 @@ def HeartBeat_pattern(t, bpm):
         V += HeartBeatSignal(t - t[i])
     return scale01(V)
 
+nt = 301
+it = np.linspace(0,1,nt)
+t = 20*(it-0.3)
+
+def plot_sig1(t,y1,title1):
+    fig, (ax1) = plt.subplots(1, 1, sharey=True,figsize=(20,2),facecolor=('#e0e0eb'))
+    nt,tmin, tmax = t.shape[0], np.min(t), np.max(t)
+    ax1.set_xlim([tmin, tmax]);
+    g_zero = -0.05; 
+    ax1.plot(t,y1,lw=2);
+    ax1.vlines(0,0,1,'r',linestyles='dotted',lw=3)
+    ax1.set_title(title1,fontweight='bold'); ax1.margins(0, 0.1)
+
+
+def HeartBeatSignal(t):
+    v1width = 0.2 * np.pi
+    v1shift = 0.05 * np.pi
+    y1 = np.sinc(2.0 * t)
+    v1 = vSignal(v1width * (t - v1shift))
+    yv1 = y1 * v1
+    S0 = scale0(v1 * y1)
+    sf1 = 1.5 * np.pi
+    A1 = 0.12
+    sq1 = A1 * sinquadSignal(np.exp(0.5 * (t + sf1)) - np.pi / 2)
+    sf2 = 1.5 * np.pi
+    A2 = 0.20
+    sq2 = A2 * sinquadSignal(np.exp(0.5 * (t - sf2)) - np.pi / 2)
+    return sq1 + S0 + sq2
 #define t
 nt, it, thor  = 301, np.linspace(0,1,nt), 5               
 t = thor*2*np.pi*(it-0.3)
