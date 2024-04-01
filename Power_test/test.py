@@ -28,9 +28,6 @@ def HeartBeatSignal(t):
     heartbeat = P_wave + Q_wave + R_wave + S_wave + T_wave
     heartbeat = heartbeat / np.max(np.abs(heartbeat))  # Normalize
     return heartbeat
-
-if np.isnan(hbp).any():
-    print("NaN values detected in heartbeat pattern before scaling.")
     
 def scale01(a):
     min_a = np.min(a)
@@ -62,8 +59,12 @@ hbp = HeartBeat_pattern(t, desired_bpm)
 # Scale the heartbeat pattern to the 0-3.3V range
 scaled_hbp = scale01(hbp) * 3.3
 
+
 # Output the signal to the DAC at the desired sample rate
 sample_rate = 0.7  # Adjust as needed
+if np.isnan(hbp).any():
+    print("NaN values detected in heartbeat pattern before scaling.")
+
 if np.isnan(scaled_hbp).any():
     print("Error: The scaled heartbeat pattern contains NaN values.")
 else:
