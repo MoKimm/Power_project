@@ -53,7 +53,7 @@ hbp = HeartBeat_pattern(t, desired_bpm)
 scaled_hbp = scale01(hbp) * 3.3
 
 # Output the signal to the DAC at the desired sample rate
-sample_rate = 0.01  # Sample rate in seconds, adjust as needed
+sample_rate = 0.7  # Sample rate in seconds, adjust as needed
 try:
     for voltage in scaled_hbp:
         set_voltage(MCP4725_ADDRESS, voltage)
