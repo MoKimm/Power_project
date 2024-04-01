@@ -100,10 +100,12 @@ def HeartBeatSignal(t, amplitude=1.0, frequency=1.0):
 nt, it, thor  = 301, np.linspace(0,1,nt), 5               
 t = thor*2*np.pi*(it-0.3)
 
-def HeartBeat_pattern(t,tidx):
+def HeartBeat_pattern(t, tidx, amplitude=1.0, frequency=1.0):
     V = np.zeros_like(t)
-    for j in tidx: V = V + HeartBeatSignal(t-t[j])
+    for j in tidx:
+        V = V + HeartBeatSignal(t-t[j], amplitude=amplitude, frequency=frequency)
     return V
+
 
 #def ar(u): np.random.seed(1234); return u*(1+0.080*np.random.randn(nt))
 #def tr(u): np.random.seed(1234); return u*(1+0.001*np.random.randn(nt))
