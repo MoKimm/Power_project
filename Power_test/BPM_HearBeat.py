@@ -161,7 +161,7 @@ scaled_hbp = (hbp - np.min(hbp)) * (3.3 / (np.max(hbp) - np.min(hbp)))
 #_____________________________________________________________________________________________________
 
 # Set beats per minute
-bpm = 96  # Example, you can change this value as needed
+bpm =  60 # Example, you can change this value as needed
 
 # Calculate the time in seconds for one beat
 seconds_per_beat = 60.0 / bpm
