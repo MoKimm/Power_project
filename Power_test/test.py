@@ -1,11 +1,21 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import RPi.GPIO as GPIO
+import smbus
 import time
 
-LED_pin = 17  # replace with your GPIO pin number
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(LED_pin, GPIO.OUT)
+# Raspberry Pi I2C channel (usually 1)
+I2C_CHANNEL = 1
+# MCP4725 default I2C address
+MCP4725_ADDRESS = 0x60
+
+# Initialize I2C (SMBus)
+bus = smbus.SMBus(I2C_CHANNEL)
+
+# Function to set voltage on MCP4725
+def set_voltage(dac_address, voltage, vref=3.3):
+    # Convert voltage to DAC value
+    dac_value = int((voltage / vref) * 4095)
+    # Split the value into two bytes and send it to the DAC
+    bus.write_i2c_block_data(dac_address, 0x40, [dac_value >> 4, (dac_value & 15) << 4])
 
 np.set_printoptions(precision=4,linewidth=160)
 
@@ -35,14 +45,19 @@ def sinc_pattern(t,tidx):
     for j in tidx: S = S + sincSignal(t-t[j]); 
     return S
 
-def set_δ(t,ntau):  
-    nt,tmin,tmax = t.shape[0], np.min(t), np.max(t);  LT = tmax-tmin; dt = LT/(nt-1)
-    δτ = 1.0;    m_step = int(round(ntau * δτ/dt)) #--- guess the integer 'time step' of the array index
-    τo = 0;  # set-off                             #--- set the Dirac series
-    tidx = np.arange(τo,nt,m_step)
-    t1 = np.zeros_like(t).astype(int); t1[τo:nt:m_step] = 1
+def set_δ_bpm(t, bpm):
+    # Calculate the time interval between beats in seconds
+    beat_interval = 60 / bpm
+    nt, tmin, tmax = t.shape[0], np.min(t), np.max(t)
+    LT = tmax - tmin
+    dt = LT / (nt - 1)
+    # Calculate the number of timesteps per beat
+    m_step = int(round(beat_interval / dt))
+    tidx = np.arange(0, nt, m_step)
+    t1 = np.zeros_like(t).astype(int)
+    t1[tidx] = 1
     return tidx, t1
-
+    
 def scale01(a): return (a-a.min())/(a.max()-a.min())
 def scale0(a): return (a-0)/(a.max()-0)
 
@@ -52,6 +67,8 @@ def convolution(t,s1,s2):
     for i,tt in enumerate(t):
         conv[i]= np.sum(s1[i-jt]*s2[jt])
     return scale01(conv)
+
+
 
 nt = 301
 it = np.linspace(0,1,nt)
@@ -65,7 +82,7 @@ def plot_sig1(t,y1,title1):
     ax1.plot(t,y1,lw=2);
     ax1.vlines(0,0,1,'r',linestyles='dotted',lw=3)
     ax1.set_title(title1,fontweight='bold'); ax1.margins(0, 0.1)
-    plt.show()
+    
 
 def HeartBeatSignal(t):
     v1width = 0.2 * np.pi
@@ -91,39 +108,33 @@ def HeartBeat_pattern(t,tidx):
     for j in tidx: V = V + HeartBeatSignal(t-t[j])
     return V
 
-def ar(u): np.random.seed(1234); return u*(1+0.080*np.random.randn(nt))
-def tr(u): np.random.seed(1234); return u*(1+0.001*np.random.randn(nt))
+#def ar(u): np.random.seed(1234); return u*(1+0.080*np.random.randn(nt))
+#def tr(u): np.random.seed(1234); return u*(1+0.001*np.random.randn(nt))
 
 #define t
-nt, it, thor  = 301, np.linspace(0,1,nt), 30           
-t = thor*2*np.pi*(it-0)
+#nt, it, thor  = 301, np.linspace(0,1,nt), 30           
+#t = thor*2*np.pi*(it-0)
 
-#build SCG pattern
-tidx,t1 = set_δ(t,10*2*np.pi);
-hbp = HeartBeat_pattern(t,tidx);
-'''
-def output_to_GPIO(t, signal, pin):
-    dt = t[1] - t[0]  # time difference between samples
-    
-    for value in signal:
-        GPIO.output(pin, GPIO.HIGH if value > 0.5 else GPIO.LOW)
-        time.sleep(dt)
+nt = 301
+it = np.linspace(0, 1, nt)
+t = 20 * (it - 0.3)  # Adjust time scale if necessary for your specific application
+desired_bpm = 60  # Example BPM
+
+# Generate the heartbeat pattern based on the desired BPM
+tidx, t1 = set_δ_bpm(t, desired_bpm)
+hbp = HeartBeat_pattern(t, tidx)
+
+# Scale the heartbeat pattern to the 0-3.3V range
+scaled_hbp = (hbp - np.min(hbp)) * (3.3 / (np.max(hbp) - np.min(hbp)))
+
+# Output the signal to the DAC at the desired sample rate
 try:
-    # Build SCG pattern
-    tidx, t1 = set_δ(t, 3*2*np.pi)
-    hbp = HeartBeat_pattern(t, tidx)
-    scaled_hbp = scale01(hbp)  # Make sure the signal is scaled between 0 and 1
-
-    # Output to GPIO
-    output_to_GPIO(t, scaled_hbp, LED_pin)
-
-except KeyboardInterrupt:
-    pass
-
+    sample_rate = 0.7  # Adjust this value as needed for your signal
+    for voltage in scaled_hbp:
+        set_voltage(MCP4725_ADDRESS, voltage)
+        time.sleep(sample_rate)
 finally:
-    GPIO.cleanup()
+    bus.close()  # Ensure the I2C bus is closed even if an error occurs
+
 #plot it
-'''
-plot_sig1(tr(t),ar(hbp),'Heart beat (SCG) pattern')
-
-
+#plot_sig1(tr(t),ar(hbp),'Heart beat (SCG) pattern')
