@@ -29,6 +29,9 @@ def HeartBeatSignal(t):
     heartbeat = heartbeat / np.max(np.abs(heartbeat))  # Normalize
     return heartbeat
 
+if np.isnan(hbp).any():
+    print("NaN values detected in heartbeat pattern before scaling.")
+    
 def scale01(a):
     min_a = np.min(a)
     range_a = np.max(a) - min_a
