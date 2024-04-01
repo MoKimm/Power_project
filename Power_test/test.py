@@ -30,7 +30,13 @@ def HeartBeatSignal(t):
     return heartbeat
 
 def scale01(a):
-    return (a - np.min(a)) / (np.max(a) - np.min(a))
+    min_a = np.min(a)
+    range_a = np.max(a) - min_a
+    if range_a == 0:
+        return np.zeros_like(a)  # Or return a constant array if more appropriate
+    else:
+        return (a - min_a) / range_a
+
 
 def HeartBeat_pattern(t, bpm):
     interval = 60 / bpm
