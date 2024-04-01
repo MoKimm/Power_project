@@ -11,6 +11,9 @@ MCP4725_ADDRESS = 0x60
 bus = smbus.SMBus(I2C_CHANNEL)
 
 def set_voltage(dac_address, voltage, vref=3.3):
+    if np.isnan(voltage):
+        print("Warning: Attempted to set NaN voltage, skipping.")
+        return
     # Convert voltage to DAC value and write to MCP4725
     dac_value = int((voltage / vref) * 4095)
     bus.write_i2c_block_data(dac_address, 0x40, [dac_value >> 4, (dac_value & 15) << 4])
@@ -52,9 +55,12 @@ scaled_hbp = scale01(hbp) * 3.3
 
 # Output the signal to the DAC at the desired sample rate
 sample_rate = 0.7  # Adjust as needed
-try:
-    for voltage in scaled_hbp:
-        set_voltage(MCP4725_ADDRESS, voltage)
-        time.sleep(sample_rate)
-finally:
-    bus.close()  # Ensure the I2C bus is closed on completion or error
+if np.isnan(scaled_hbp).any():
+    print("Error: The scaled heartbeat pattern contains NaN values.")
+else:
+    try:
+        for voltage in scaled_hbp:
+            set_voltage(MCP4725_ADDRESS, voltage)
+            time.sleep(sample_rate)
+    finally:
+        bus.close()  # Ensure
