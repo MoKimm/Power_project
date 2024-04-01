@@ -118,7 +118,7 @@ def HeartBeat_pattern(t,tidx):
 nt = 301
 it = np.linspace(0, 1, nt)
 t = 20 * (it - 0.3)  # Adjust time scale if necessary for your specific application
-desired_bpm = 60  # Example BPM
+desired_bpm = 105  # Example BPM
 
 # Generate the heartbeat pattern based on the desired BPM
 tidx, t1 = set_δ_bpm(t, desired_bpm)

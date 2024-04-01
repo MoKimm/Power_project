@@ -124,6 +124,7 @@ scaled_hbp = (hbp - np.min(hbp)) * (3.3 / (np.max(hbp) - np.min(hbp)))
 try:
     sample_rate = 0.7  # Adjust this value as needed for your signal
     for voltage in scaled_hbp:
+        print(t)
         set_voltage(MCP4725_ADDRESS, voltage)
         time.sleep(sample_rate)
 finally:
