@@ -15,7 +15,7 @@ pwm.start(50)
 try:
     # Keep the PWM signal running for a certain time or until a condition is met
     while True:
-        time.sleep(1)
+        time.sleep(0.1)
         # Adjust duty cycle, frequency, etc., as needed
 finally:
     pwm.stop()  # Stop PWM

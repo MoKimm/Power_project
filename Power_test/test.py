@@ -117,7 +117,7 @@ def HeartBeat_pattern(t, tidx, amplitude=1.0, frequency=1.0):
 nt, it, thor = 301, np.linspace(0, 1, nt), 30
 t = thor * 2 * np.pi * it
 
-tidx, t1 = set_δ(t,  1* 2 * np.pi)
+tidx, t1 = set_δ(t, 3 * 2 * np.pi)
 hbp = HeartBeat_pattern(t, tidx)
 
 # Scale the heartbeat pattern to the 0-3.3V range
