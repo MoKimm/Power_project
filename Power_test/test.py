@@ -20,7 +20,7 @@ def set_voltage(dac_address, voltage, vref=3.3):
 
 np.set_printoptions(precision=4,linewidth=160)
 
-def uSignal(t):    return np.array(0.5*np.sign(t) + 0.5,dtype=int)
+def uSignal(t):    return np.array(1*np.sign(t) + 0.5,dtype=int)
 def wSignal(t,dt): return uSignal(t)-uSignal(t-dt)
 def vSignal(t):    return np.maximum(1-np.abs(t),0)
 def dSignal(t): DT = t[1]-t[0]; return uSignal(t) - uSignal(t-DT)
@@ -89,10 +89,10 @@ def HeartBeatSignal(t, amplitude=1.0, frequency=1.0):
     v1 = vSignal(v1width * (t - v1shift))
     S0 = scale0(v1 * y1)
     sf1 = 1.5 * np.pi * frequency
-    A1 = 0.12 * amplitude
+    A1 = 0.3 * amplitude
     sq1 = A1 * sinquadSignal(np.exp(0.5 * (t + sf1)) - np.pi / 2)
     sf2 = 1.5 * np.pi * frequency
-    A2 = 0.20 * amplitude
+    A2 = 0.2 * amplitude
     sq2 = A2 * sinquadSignal(np.exp(0.5 * (t - sf2)) - np.pi / 2)
     return sq1 + S0 + sq2
 
@@ -117,7 +117,7 @@ def HeartBeat_pattern(t, tidx, amplitude=1.0, frequency=1.0):
 nt, it, thor = 301, np.linspace(0, 1, nt), 30
 t = thor * 2 * np.pi * it
 
-tidx, t1 = set_δ(t,  6* 2 * np.pi)
+tidx, t1 = set_δ(t,  1* 2 * np.pi)
 hbp = HeartBeat_pattern(t, tidx)
 
 # Scale the heartbeat pattern to the 0-3.3V range
@@ -128,15 +128,16 @@ amplitude_variations = [1.0, 1.1, 1.2]  # Example amplitudes
 frequency_variations = [1.0, 0.9, 1.1]  # Example frequencies
 
 try:
-    for amplitude, frequency in zip(amplitude_variations, frequency_variations):
-        # Generate HBP with current amplitude and frequency
-        hbp = HeartBeat_pattern(t, tidx, amplitude=amplitude, frequency=frequency)
-        scaled_hbp = (hbp - np.min(hbp)) * (3.3 / (np.max(hbp) - np.min(hbp)))
+    while True:
+        for amplitude, frequency in zip(amplitude_variations, frequency_variations):
+            # Generate HBP with current amplitude and frequency
+            hbp = HeartBeat_pattern(t, tidx, amplitude=amplitude, frequency=frequency)
+            scaled_hbp = (hbp - np.min(hbp)) * (3.3 / (np.max(hbp) - np.min(hbp)))
         
         # Output the signal to the DAC
-        for voltage in scaled_hbp:
-            sample_rate = 0.7
-            set_voltage(MCP4725_ADDRESS, voltage)
-            time.sleep(sample_rate)
+            for voltage in scaled_hbp:
+                sample_rate = 0.7
+                set_voltage(MCP4725_ADDRESS, voltage)
+                time.sleep(sample_rate)
 finally:
     bus.close()  # Ensure the I2C bus is closed even if an error occurs
