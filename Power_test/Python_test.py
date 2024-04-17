@@ -4,30 +4,17 @@ import time
 #import matplotlib.pyplot as plt
 np.set_printoptions(precision=4,linewidth=160)
 
-# Set the GPIO numbering mode
 GPIO.setmode(GPIO.BCM)
+IN1 = 17  # Control pin for L293D Input 1
+IN2 = 27  # Control pin for L293D Input 2
+PWM_PIN = 18  # GPIO pin for PWM signal
 
-# Set pins
-IN1 = 17  # Example GPIO pin numbers
-IN2 = 27
-
-# Set up pins as output
+# Setup GPIO pins for L293D
 GPIO.setup(IN1, GPIO.OUT)
 GPIO.setup(IN2, GPIO.OUT)
+pwm = GPIO.PWM(PWM_PIN, 100)
 
-# Function to control motor direction and speed
-def motor_control(speed, turn_time):
-    GPIO.output(IN1, GPIO.HIGH)
-    GPIO.output(IN2, GPIO.LOW)
-    time.sleep(turn_time)  # Motor will run in one direction for 'turn_time' seconds
-    GPIO.output(IN1, GPIO.LOW)
-    GPIO.output(IN2, GPIO.HIGH)
-    time.sleep(turn_time)  # Motor will run in the opposite direction for 'turn_time' seconds
-# Example usage
-motor_control(1, 5)  # Adjust '5' for speed if using PWM
-
-# Clean up GPIO pins and exit
-GPIO.cleanup()
+pwm.start(0)
 
 def uSignal(t):    return np.array(0.5*np.sign(t) + 0.5,dtype=int)
 def wSignal(t,dt): return uSignal(t)-uSignal(t-dt)
@@ -130,31 +117,33 @@ hbp = HeartBeat_pattern(t,tidx);
 
 
 
-#Additions to the sent code to output Signal to GPIO pins instead of plot -Bryce Wellman
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)
+def motor_control(signal):
+    for value in signal:
+        if value > 0:
+            GPIO.output(IN1, GPIO.HIGH)
+            GPIO.output(IN2, GPIO.LOW)
+        else:
+            GPIO.output(IN1, GPIO.LOW)
+            GPIO.output(IN2, GPIO.HIGH)
+        pwm.ChangeDutyCycle(abs(value))  # Set PWM duty cycle
+        time.sleep(0.1)  # Time interval for PWM signal
 
-def output_signal_to_gpio(t, signal):
+def generate_heartbeat_pattern(length):
+    t = np.linspace(-3 * np.pi, 3 * np.pi, length)
+    heartbeat_signal = np.sin(t) * (1 - np.abs(t) / np.pi)
+    normalized_signal = (heartbeat_signal - heartbeat_signal.min()) / (heartbeat_signal.max() - heartbeat_signal.min()) * 100
+    return normalized_signal
 
-    pwm = GPIO.PWM(17, 5000)
-    pwm.start(0)
-
-    try:
-        for i in range(len(t)):
-            duty_cycle = max(0, min(100, signal[i] * 100))  # Convert signal value to duty cycle
-            pwm.ChangeDutyCycle(duty_cycle)  # Change duty cycle
-            time.sleep(0.1)  # Adjust sleep time to match signal's time resolution
-    finally:
-        pwm.stop()
-        GPIO.cleanup()
+# Generate signal pattern
+signal_pattern = generate_heartbeat_pattern(100)
 
 
-# Normalize the heartbeat pattern signal to a 0-1 range for PWM duty cycle
-hbp_normalized = (hbp - hbp.min()) / (hbp.max() - hbp.min())
-
-# Output the normalized signal to GPIO
-output_signal_to_gpio(t, hbp_normalized)
-
+try:
+    # Run motor control based on generated signal
+    motor_control(signal_pattern)
+finally:
+    pwm.stop()  # Stop PWM
+    GPIO.cleanup()  # Cleanup all GPIO
 """
 #Following code includes the randomizations to the ekg 
 
