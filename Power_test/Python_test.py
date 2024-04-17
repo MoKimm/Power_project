@@ -66,17 +66,6 @@ nt = 301
 it = np.linspace(0,1,nt)
 t = 20*(it-0.3)
 
-"""
-def plot_sig1(t,y1,title1):
-    fig, (ax1) = plt.subplots(1, 1, sharey=True,figsize=(20,2),facecolor=('#e0e0eb'))
-    nt,tmin, tmax = t.shape[0], np.min(t), np.max(t)
-    ax1.set_xlim([tmin, tmax]);
-    g_zero = -0.05;
-    ax1.plot(t,y1,lw=2);
-    ax1.vlines(0,0,1,'r',linestyles='dotted',lw=3)
-    ax1.set_title(title1,fontweight='bold'); ax1.margins(0, 0.1)
-    plt.show()
-"""
 
 def HeartBeatSignal(t):
     v1width = 0.2 * np.pi
@@ -114,8 +103,6 @@ t = thor*2*np.pi*(it-0)
 tidx,t1 = set_δ(t,6*2*np.pi);
 hbp = HeartBeat_pattern(t,tidx);
 
-#plot it
-#plot_sig1(tr(t),ar(hbp),'Heart beat (SCG) pattern')
 
 
 
@@ -150,18 +137,3 @@ except Exception as e:
 finally:
     pwm.stop()  # Stop PWM
     GPIO.cleanup()  # Cleanup all GPIO
-
-"""
-#Following code includes the randomizations to the ekg 
-
-# Apply amplitude and "time" randomizations
-hbp_with_variability = ar(hbp)  # Apply amplitude randomization
-hbp_transformed = tr(hbp_with_variability)  # Apply "time" randomization, conceptually applying to signal
-
-# Normalize the signal for PWM output
-hbp_normalized = (hbp_transformed - hbp_transformed.min()) / (hbp_transformed.max() - hbp_transformed.min())
-
-# Output the normalized signal to GPIO
-output_signal_to_gpio(t, hbp_normalized)
-
-"""
