@@ -12,7 +12,9 @@ PWM_PIN = 18  # GPIO pin for PWM signal
 # Setup GPIO pins for L293D
 GPIO.setup(IN1, GPIO.OUT)
 GPIO.setup(IN2, GPIO.OUT)
-pwm = GPIO.PWM(PWM_PIN, 100)
+GPIO.setup(PWM_PIN, GPIO.OUT)  
+pwm = GPIO.PWM(PWM_PIN, 100)  # Initialize PWM on PWM_PIN at 100 Hz
+
 
 pwm.start(0)
 
