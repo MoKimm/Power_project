@@ -121,14 +121,15 @@ hbp = HeartBeat_pattern(t,tidx);
 
 def motor_control(signal):
     for value in signal:
+        duty_cycle = max(0, min(100, abs(value)))  # Ensure duty cycle is within 0-100%
         if value > 0:
             GPIO.output(IN1, GPIO.HIGH)
             GPIO.output(IN2, GPIO.LOW)
         else:
             GPIO.output(IN1, GPIO.LOW)
             GPIO.output(IN2, GPIO.HIGH)
-        pwm.ChangeDutyCycle(abs(value))  # Set PWM duty cycle
-        time.sleep(0.1)  # Time interval for PWM signal
+        pwm.ChangeDutyCycle(duty_cycle)
+        time.sleep(0.1)
 
 def generate_heartbeat_pattern(length):
     t = np.linspace(-3 * np.pi, 3 * np.pi, length)
@@ -141,11 +142,15 @@ signal_pattern = generate_heartbeat_pattern(100)
 
 
 try:
+    pwm.start(0)  # Start PWM with 0% duty cycle
     # Run motor control based on generated signal
     motor_control(signal_pattern)
+except Exception as e:
+    print("An error occurred:", e)
 finally:
     pwm.stop()  # Stop PWM
     GPIO.cleanup()  # Cleanup all GPIO
+
 """
 #Following code includes the randomizations to the ekg 
 
