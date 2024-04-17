@@ -105,35 +105,25 @@ hbp = HeartBeat_pattern(t,tidx);
 
 
 
-
-def motor_control(signal):
-    for value in signal:
-        duty_cycle = max(0, min(100, abs(value)))  # Ensure duty cycle is within 0-100%
-        if value > 0:
-            GPIO.output(IN1, GPIO.HIGH)
-            GPIO.output(IN2, GPIO.LOW)
-        else:
-            GPIO.output(IN1, GPIO.LOW)
-            GPIO.output(IN2, GPIO.HIGH)
-        pwm.ChangeDutyCycle(duty_cycle)
-        time.sleep(0.1)
-
 def generate_heartbeat_pattern(length):
     t = np.linspace(-3 * np.pi, 3 * np.pi, length)
-    heartbeat_signal = np.sin(t) * (1 - np.abs(t) / np.pi)
-    normalized_signal = (heartbeat_signal - heartbeat_signal.min()) / (heartbeat_signal.max() - heartbeat_signal.min()) * 100
-    return normalized_signal
+    return HeartBeatSignal(t)
 
-# Generate signal pattern
-signal_pattern = generate_heartbeat_pattern(100)
+def motor_control(signal):
+    pwm.start(0)
+    try:
+        for value in signal:
+            duty_cycle = max(0, min(100, np.abs(value) * 100 / np.max(np.abs(signal))))  # Normalize to 0-100
+            GPIO.output(IN1, GPIO.HIGH if value >= 0 else GPIO.LOW)
+            GPIO.output(IN2, GPIO.LOW if value >= 0 else GPIO.HIGH)
+            pwm.ChangeDutyCycle(duty_cycle)
+            time.sleep(0.1)  # Adjust as necessary for timing
+    finally:
+        pwm.stop()
+        GPIO.cleanup()
 
-
-try:
-    pwm.start(0)  # Start PWM with 0% duty cycle
-    # Run motor control based on generated signal
-    motor_control(signal_pattern)
-except Exception as e:
-    print("An error occurred:", e)
-finally:
-    pwm.stop()  # Stop PWM
-    GPIO.cleanup()  # Cleanup all GPIO
+# Main execution block
+if __name__ == "__main__":
+    signal_length = 100  # Define the length of the signal array
+    heartbeat_signal = generate_heartbeat_pattern(signal_length)
+    motor_control(heartbeat_signal)
